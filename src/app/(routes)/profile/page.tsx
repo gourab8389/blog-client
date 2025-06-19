@@ -1,19 +1,75 @@
 "use client";
 
 import { useAppData, user_service } from "@/context/app-context";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { toast } from "sonner";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Loader2, Plus } from "lucide-react";
+import { Edit, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const ProfilePage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setloading] = useState(false);
   const { user, setUser } = useAppData();
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: user?.user.name || "",
+    email: user?.user.email || "",
+    bio: user?.user.bio || "",
+    instagram: user?.user.instagram || "",
+    facebook: user?.user.facebook || "",
+    linkedin: user?.user.linkedin || "",
+  });
+
+  useEffect(() => {
+  if (user) {
+    setFormData({
+      name: user.user.name || "",
+      email: user.user.email || "",
+      bio: user.user.bio || "",
+      instagram: user.user.instagram || "",
+      facebook: user.user.facebook || "",
+      linkedin: user.user.linkedin || "",
+    });
+  }
+}, [user]);
+
+  const handleFormSubmit = async () => {
+    try {
+      setloading(true);
+      const token = Cookies.get("token");
+      const { data } = await axios.post(
+        `${user_service}/api/v1/user/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Profile updated successfully!");
+      setUser(data);
+      setOpen(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile.");
+      setloading(false);
+    }
+  };
 
   const changeHandler = async (e: any) => {
     const file = e.target.files[0];
@@ -134,11 +190,82 @@ const ProfilePage = () => {
                   </a>
                 )}
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center gap-5">
                 <Button>
                   Add Blog
                   <Plus className="font-bold" />
                 </Button>
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      Edit
+                      <Edit className="font-bold" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogTitle>Edit Profile</DialogTitle>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleFormSubmit();
+                      }}
+                      className="flex flex-col gap-2"
+                    >
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                      />
+                      <Label htmlFor="bio">Bio</Label>
+                      <Input
+                        id="bio"
+                        value={formData.bio}
+                        onChange={(e) =>
+                          setFormData({ ...formData, bio: e.target.value })
+                        }
+                      />
+                      <Label htmlFor="instagram">Instagram</Label>
+                      <Input
+                        id="instagram"
+                        value={formData.instagram}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            instagram: e.target.value,
+                          })
+                        }
+                      />
+                      <Label htmlFor="facebook">Facebook</Label>
+                      <Input
+                        id="facebook"
+                        value={formData.facebook}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            facebook: e.target.value,
+                          })
+                        }
+                      />
+                      <Label htmlFor="linkedin">LinkedIn</Label>
+                      <Input
+                        id="linkedin"
+                        value={formData.linkedin}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            linkedin: e.target.value,
+                          })
+                        }
+                      />
+                      <Button type="submit" className="mt-4">
+                        Save Changes
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           )}

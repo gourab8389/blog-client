@@ -43,7 +43,7 @@ const Sidebar = ({ className }: SidebarProps) => {
           <Link href={"/profile"}>
             <Button className="w-full flex">
               <Avatar className="w-7 h-7">
-                <AvatarImage src={user.user.image} />
+                <AvatarImage src={user.user.image} className="object-cover"/>
                 <AvatarFallback className="bg-white text-blue-500">
                   {user.user.name.charAt(0).toUpperCase()}
                 </AvatarFallback>

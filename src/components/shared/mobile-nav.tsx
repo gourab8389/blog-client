@@ -9,11 +9,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navMenu } from "@/constants/menu";
-import { useAppData } from "@/context/app-context";
+import { Logout, useAppData } from "@/context/app-context";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface MobileNavProps {
   className?: string;
@@ -48,12 +49,28 @@ const MobileNav = ({ className }: MobileNavProps) => {
               <div className="w-full">
                 {user ? (
                   <Link href={"/profile"}>
-                    <Button className="w-full">{user.user.name}</Button>
+                    <Button className="w-full flex">
+                      <Avatar className="w-7 h-7">
+                        <AvatarImage
+                          src={user.user.image}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-white text-blue-500">
+                          {user.user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {user.user.name}
+                    </Button>
                   </Link>
                 ) : (
                   <Link href={"/login"}>
                     <Button className="w-full">Login</Button>
                   </Link>
+                )}
+                {(user || isAuth) && (
+                  <Button className="w-full mt-2" onClick={Logout}>
+                    Logout
+                  </Button>
                 )}
               </div>
             </div>

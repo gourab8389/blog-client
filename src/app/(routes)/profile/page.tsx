@@ -208,7 +208,7 @@ const ProfilePage = () => {
                 <Button onClick={logoutUserHandler} variant="destructive">
                   Logout
                 </Button>
-                <Button>
+                <Button onClick={() => router.push("/blog/new")}>
                   Add Blog
                   <Plus className="font-bold" />
                 </Button>

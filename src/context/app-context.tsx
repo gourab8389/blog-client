@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { GoogleOAuthProvider } from "@react-oauth/google"
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export const user_service = process.env.NEXT_PUBLIC_USER_SERVICE_URL;
 export const blog_service = process.env.NEXT_PUBLIC_BLOG_SERVICE_URL;
@@ -44,6 +44,7 @@ interface AppContextType {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   setUser: React.Dispatch<React.SetStateAction<UserRespose | null>>;
+  logoutUser: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -57,7 +58,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  async function fetchUser(){
+  async function fetchUser() {
     try {
       const token = Cookies.get("token");
       const { data } = await axios.get(`${user_service}/api/v1/me`, {
@@ -73,34 +74,34 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Error fetching user:", error);
       setLoading(false);
     }
-  };
+  }
 
+  async function logoutUser() {
+    Cookies.remove("token");
+    setUser(null);
+    setIsAuth(false);
+  }
 
   useEffect(() => {
-      fetchUser();
-  }, [])
+    fetchUser();
+  }, []);
   return (
-    <AppContext.Provider value={{ user, setIsAuth, isAuth, setLoading, loading, setUser }}>
+    <AppContext.Provider
+      value={{ user, setIsAuth, isAuth, setLoading, loading, setUser, logoutUser }}
+    >
       <GoogleOAuthProvider
         clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
       >
         {children}
       </GoogleOAuthProvider>
-  </AppContext.Provider>
-  )
+    </AppContext.Provider>
+  );
 };
 
 export const useAppData = () => {
-
   const context = useContext(AppContext);
   if (!context) {
     throw new Error("useAppData must be used within an AppProvider");
   }
   return context;
-}
-
-export const Logout = () => {
-  Cookies.remove("token", { path: "/" });
-  window.location.href = "/";
-  return null;
-}
+};

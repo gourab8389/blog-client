@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
-import { Logout, useAppData } from "@/context/app-context";
+import { useAppData } from "@/context/app-context";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -14,7 +14,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ className }: SidebarProps) => {
-  const { isAuth, user } = useAppData();
+  const { user } = useAppData();
 
   return (
     <div
@@ -55,14 +55,6 @@ const Sidebar = ({ className }: SidebarProps) => {
           <Link href={"/login"}>
             <Button className="w-full">Login</Button>
           </Link>
-        )}
-        {(user || isAuth) && (
-          <Button
-            className="w-full mt-2"
-            onClick={Logout}
-          >
-            Logout
-          </Button>
         )}
       </div>
     </div>

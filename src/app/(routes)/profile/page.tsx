@@ -22,9 +22,17 @@ import { Input } from "@/components/ui/input";
 const ProfilePage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setloading] = useState(false);
-  const { user, setUser } = useAppData();
+  const { user, setUser, logoutUser } = useAppData();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+
+  if (!user) {
+    router.push("/login");
+  }
+
+  const logoutUserHandler = () => {
+    logoutUser();
+  };
 
   const [formData, setFormData] = useState({
     name: user?.user.name || "",
@@ -36,17 +44,17 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-  if (user) {
-    setFormData({
-      name: user.user.name || "",
-      email: user.user.email || "",
-      bio: user.user.bio || "",
-      instagram: user.user.instagram || "",
-      facebook: user.user.facebook || "",
-      linkedin: user.user.linkedin || "",
-    });
-  }
-}, [user]);
+    if (user) {
+      setFormData({
+        name: user.user.name || "",
+        email: user.user.email || "",
+        bio: user.user.bio || "",
+        instagram: user.user.instagram || "",
+        facebook: user.user.facebook || "",
+        linkedin: user.user.linkedin || "",
+      });
+    }
+  }, [user]);
 
   const handleFormSubmit = async () => {
     try {
@@ -62,8 +70,14 @@ const ProfilePage = () => {
         }
       );
       toast.success("Profile updated successfully!");
+      Cookies.set("token", data.token, {
+        expires: 5,
+        secure: true,
+        path: "/",
+      });
       setUser(data);
       setOpen(false);
+      setloading(false);
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile.");
@@ -191,6 +205,9 @@ const ProfilePage = () => {
                 )}
               </div>
               <div className="flex items-center gap-5">
+                <Button onClick={logoutUserHandler} variant="destructive">
+                  Logout
+                </Button>
                 <Button>
                   Add Blog
                   <Plus className="font-bold" />

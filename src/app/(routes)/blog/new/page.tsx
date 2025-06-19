@@ -4,15 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Upload } from "lucide-react";
 import React from "react";
-
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { blogCategories } from "@/constants/category";
+import FormGroup from "@/components/shared/group";
 
 const AddBlog = () => {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+
   const handleSubmit = () => {
-    // Handle form submission logic here
     console.log("Form submitted");
   };
   return (
@@ -26,42 +49,116 @@ const AddBlog = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <Label>Title</Label>
-            <div className="flex justify-center items-center gap-2">
-              <Input name="title" required placeholder="Enter blog title" />
-              <Button
-                type="button"
-                size={"icon"}
-                className="flex items-center justify-center"
-              >
-                <RefreshCw />
-              </Button>
+            <FormGroup>
+              <Label>Title</Label>
+              <div className="flex justify-center items-center gap-2">
+                <Input name="title" required placeholder="Enter blog title" />
+                <Button
+                  type="button"
+                  size={"icon"}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCw />
+                </Button>
+              </div>
+            </FormGroup>
+            <FormGroup>
+              <Label>Description</Label>
+              <div className="flex gap-2">
+                <Textarea
+                  name="description"
+                  required
+                  placeholder="Enter blog title"
+                  className="resize-none"
+                />
+                <Button
+                  type="button"
+                  size={"icon"}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCw />
+                </Button>
+              </div>
+            </FormGroup>
+            <FormGroup>
+              <Label>Category</Label>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-[200px] justify-between"
+                  >
+                    {value
+                      ? blogCategories.find((category) => category === value)
+                      : "Select category..."}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search category..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No category found.</CommandEmpty>
+                      <CommandGroup>
+                        {blogCategories.map((category) => (
+                          <CommandItem
+                            key={category}
+                            value={category}
+                            onSelect={(currentValue) => {
+                              setValue(
+                                currentValue === value ? "" : currentValue
+                              );
+                              setOpen(false);
+                            }}
+                          >
+                            {category}
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                value === category ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </FormGroup>
+            <div className="">
+              <FormGroup>
+                <Label>Image Upload</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  name="image"
+                  required
+                  className="border border-gray-300 rounded pb-2 w-full"
+                />
+              </FormGroup>
             </div>
-            <Label>Description</Label>
-            <div className="flex gap-2">
-              <Textarea
-                name="description"
-                required
-                placeholder="Enter blog title"
-                className="resize-none"
-              />
-              <Button
-                type="button"
-                size={"icon"}
-                className="flex items-center justify-center"
-              >
-                <RefreshCw />
-              </Button>
+            <div className="">
+              <FormGroup>
+                <Label>Blog Content</Label>
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm text-muted-foreground">
+                    Paste your blog or type here . You can use rich text
+                    formatting. Please add image after improving your grammer
+                    and spellings.
+                  </p>
+                  <Button type="button" size={"sm"}>
+                    <RefreshCw className="h-4 w-4" />
+                    <span className="ml-1">Fix Content</span>
+                  </Button>
+                </div>
+              </FormGroup>
             </div>
-            <Label>Category</Label>
-            <Select name="category" required>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-
-              </SelectContent>
-            </Select>
           </form>
         </CardContent>
       </Card>

@@ -83,46 +83,41 @@ const AddBlog = () => {
             <FormGroup>
               <Label>Category</Label>
               <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+                <PopoverTrigger asChild className="!w-fit">
                   <Button
                     variant="outline"
                     role="combobox"
-                    aria-expanded={open}
-                    className="w-[200px] justify-between"
+                    className={cn(
+                      "w-full justify-between",
+                      !value && "text-muted-foreground"
+                    )}
                   >
-                    {value
-                      ? blogCategories.find((category) => category === value)
-                      : "Select category..."}
-                    <ChevronsUpDown className="opacity-50" />
+                    {value || "Select a category"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                   <Command>
-                    <CommandInput
-                      placeholder="Search category..."
-                      className="h-9"
-                    />
+                    <CommandInput placeholder="Search categories..." />
                     <CommandList>
-                      <CommandEmpty>No category found.</CommandEmpty>
+                      <CommandEmpty>No categories found.</CommandEmpty>
                       <CommandGroup>
                         {blogCategories.map((category) => (
                           <CommandItem
                             key={category}
                             value={category}
                             onSelect={(currentValue) => {
-                              setValue(
-                                currentValue === value ? "" : currentValue
-                              );
+                              setValue(currentValue);
                               setOpen(false);
                             }}
                           >
-                            {category}
                             <Check
                               className={cn(
-                                "ml-auto",
+                                "mr-2 h-4 w-4",
                                 value === category ? "opacity-100" : "opacity-0"
                               )}
                             />
+                            {category}
                           </CommandItem>
                         ))}
                       </CommandGroup>

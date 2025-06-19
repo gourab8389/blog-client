@@ -7,7 +7,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ProfilePage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,19 +58,23 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-1">
+    <div className="h-screen flex items-center justify-center p-1">
       {loading ? (
         <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
       ) : (
-        <Card className="shadow-md rounded-lg p-6 max-w-md w-full">
-          <h1 className="text-2xl font-bold mb-4">Profile</h1>
-          {user ? (
+        <Card className="shadow-md rounded-lg p-6 max-w-md w-full items-center">
+          <h1 className="text-2xl font-bold mb-2 text-center">Profile</h1>
+          {user && (
             <div className="flex flex-col gap-4 items-center">
               <Avatar
                 className="w-28 h-28 cursor-pointer"
                 onClick={clickHandler}
               >
-                <AvatarImage src={user.user.image} alt="profile" className="object-cover" />
+                <AvatarImage
+                  src={user.user.image}
+                  alt="profile"
+                  className="object-cover"
+                />
                 <input
                   type="file"
                   ref={inputRef}
@@ -84,12 +89,57 @@ const ProfilePage = () => {
               <div>
                 <strong>Email:</strong> {user.user.email}
               </div>
-            </div>
-          ) : (
-            <div className="h-full w-full">
-              <p className="text-center text-gray-500">
-                No user data available.
-              </p>
+              {user.user?.bio && (
+                <div>
+                  <strong>Bio:</strong> {user.user.bio}
+                </div>
+              )}
+              <div className="flex gap-2">
+                {user.user.instagram && (
+                  <a
+                    href={user.user.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    <img src="/instagram.svg" alt="insta" className="w-7 h-7" />
+                  </a>
+                )}
+                {user.user.facebook && (
+                  <a
+                    href={user.user.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    <img
+                      src="/facebook.svg"
+                      alt="facebook"
+                      className="w-7 h-7"
+                    />
+                  </a>
+                )}
+                {user.user.linkedin && (
+                  <a
+                    href={user.user.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    <img
+                      src="/linkedin.svg"
+                      alt="linkedin"
+                      className="w-7 h-7"
+                    />
+                  </a>
+                )}
+              </div>
+              <div className="flex items-center">
+                <Button>
+                  Add Blog
+                  <Plus className="font-bold" />
+                </Button>
+              </div>
             </div>
           )}
         </Card>

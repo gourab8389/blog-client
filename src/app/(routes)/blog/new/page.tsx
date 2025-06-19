@@ -4,15 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { RefreshCw, Upload } from "lucide-react";
-import React from "react";
+import { Loader2, Plus, RefreshCw, Upload } from "lucide-react";
+import React, { useMemo, useRef, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -30,16 +24,94 @@ import {
 } from "@/components/ui/popover";
 import { blogCategories } from "@/constants/category";
 import FormGroup from "@/components/shared/group";
+import dynamic from "next/dynamic";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { author_service } from "@/context/app-context";
+import { toast } from "sonner";
+
+const JoditEditor = dynamic(() => import("jodit-react"), {
+  ssr: false,
+});
 
 const AddBlog = () => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const editor = useRef(null);
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    category: "",
+    image: null,
+    blogcontent: "",
+  });
 
-  const handleSubmit = () => {
-    console.log("Form submitted");
+  const hadleInputChange = (e: any) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    setFormData({
+      ...formData,
+      image: file,
+    });
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("category", formData.category);
+    formDataToSend.append("blogcontent", content);
+    if (formData.image) {
+      formDataToSend.append("file", formData.image);
+    }
+
+    try {
+      const token = Cookies.get("token");
+      const { data } = await axios.post(
+        `${author_service}/api/v1/blog/new`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Blog created successfully!");
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        image: null,
+        blogcontent: "",
+      });
+      setContent("");
+    } catch (error) {
+      console.error("Error creating blog:", error);
+      toast.error("Failed to create blog. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: "Start typings...",
+    }),
+    []
+  );
   return (
-    <div className="p-6 w-full">
+    <div className="md:p-6 w-full">
       <Card>
         <CardHeader>
           <h2 className="text-2xl font-bold">Add New Blog</h2>
@@ -48,11 +120,17 @@ const AddBlog = () => {
           </p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <FormGroup>
               <Label>Title</Label>
               <div className="flex justify-center items-center gap-2">
-                <Input name="title" required placeholder="Enter blog title" />
+                <Input
+                  name="title"
+                  required
+                  placeholder="Enter blog title"
+                  value={formData.title}
+                  onChange={hadleInputChange}
+                />
                 <Button
                   type="button"
                   size={"icon"}
@@ -70,6 +148,8 @@ const AddBlog = () => {
                   required
                   placeholder="Enter blog title"
                   className="resize-none"
+                  value={formData.description}
+                  onChange={hadleInputChange}
                 />
                 <Button
                   type="button"
@@ -97,17 +177,29 @@ const AddBlog = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search categories..." />
+                  <Command
+                    onValueChange={(value: any) =>
+                      setFormData({
+                        ...formData,
+                        category: value,
+                      })
+                    }
+                  >
+                    <CommandInput
+                      placeholder={formData.category || "Search category..."}
+                    />
                     <CommandList>
-                      <CommandEmpty>No categories found.</CommandEmpty>
+                      <CommandEmpty>No category found.</CommandEmpty>
                       <CommandGroup>
                         {blogCategories.map((category) => (
                           <CommandItem
                             key={category}
-                            value={category}
                             onSelect={(currentValue) => {
                               setValue(currentValue);
+                              setFormData({
+                                ...formData,
+                                category: currentValue,
+                              });
                               setOpen(false);
                             }}
                           >
@@ -135,13 +227,15 @@ const AddBlog = () => {
                   name="image"
                   required
                   className="border border-gray-300 rounded pb-2 w-full"
+                  onChange={handleFileChange}
+                  placeholder="Upload an image for your blog"
                 />
               </FormGroup>
             </div>
             <div className="">
               <FormGroup>
                 <Label>Blog Content</Label>
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center">
                   <p className="text-sm text-muted-foreground">
                     Paste your blog or type here . You can use rich text
                     formatting. Please add image after improving your grammer
@@ -152,8 +246,29 @@ const AddBlog = () => {
                     <span className="ml-1">Fix Content</span>
                   </Button>
                 </div>
+                <JoditEditor
+                  ref={editor}
+                  value={content}
+                  config={config}
+                  tabIndex={1}
+                  onBlur={(newContent) => {
+                    setContent(newContent);
+                    setFormData({
+                      ...formData,
+                      blogcontent: newContent,
+                    });
+                  }}
+                />
               </FormGroup>
             </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              Create Blog
+              {loading ? (
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+            </Button>
           </form>
         </CardContent>
       </Card>

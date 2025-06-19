@@ -41,6 +41,7 @@ const AddBlog = () => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiTitle, setAiTitle] = useState(false);
+  const [aiDescription, setAiDescription] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -122,6 +123,28 @@ const AddBlog = () => {
     }
   };
 
+  const aiDescriptionResponse = async () => {
+    try {
+      setAiDescription(true);
+      const { data } = await axios.post(
+        `${author_service}/api/v1/ai/description`,
+        {
+          title: formData.title,
+          description: formData.description,
+        }
+      );
+      setFormData({
+        ...formData,
+        description: data.description,
+      });
+    } catch (error) {
+      console.error("Error generating AI description:", error);
+      toast.error("Failed to generate AI description. Please try again.");
+    } finally {
+      setAiDescription(false);
+    }
+  };
+
   const config = useMemo(
     () => ({
       readonly: false,
@@ -161,7 +184,7 @@ const AddBlog = () => {
                     onClick={aiTitleRespose}
                     disabled={aiTitle}
                   >
-                    <RefreshCw className={aiTitle ? "animate-spin" : ""}/>
+                    <RefreshCw className={aiTitle ? "animate-spin" : ""} />
                   </Button>
                 )}
               </div>
@@ -173,17 +196,23 @@ const AddBlog = () => {
                   name="description"
                   required
                   placeholder="Enter blog title"
-                  className="resize-none"
                   value={formData.description}
                   onChange={hadleInputChange}
+                  className={
+                    aiDescription ? "animate-pulse placeholder:opacity-60 resize-none" : "resize-none"
+                  }
                 />
-                <Button
-                  type="button"
-                  size={"icon"}
-                  className="flex items-center justify-center"
-                >
-                  <RefreshCw />
-                </Button>
+                {formData.description && (
+                  <Button
+                    type="button"
+                    size={"icon"}
+                    className="flex items-center justify-center"
+                    onClick={aiDescriptionResponse}
+                    disabled={aiDescription}
+                  >
+                    <RefreshCw className={aiDescription ? "animate-spin" : ""} />
+                  </Button>
+                )}
               </div>
             </FormGroup>
             <FormGroup>

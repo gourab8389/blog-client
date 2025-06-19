@@ -40,6 +40,7 @@ const AddBlog = () => {
   const editor = useRef(null);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiTitle, setAiTitle] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -103,6 +104,24 @@ const AddBlog = () => {
     }
   };
 
+  const aiTitleRespose = async () => {
+    try {
+      setAiTitle(true);
+      const { data } = await axios.post(`${author_service}/api/v1/ai/title`, {
+        text: formData.title,
+      });
+      setFormData({
+        ...formData,
+        title: data.title,
+      });
+    } catch (error) {
+      console.error("Error generating AI title:", error);
+      toast.error("Failed to generate AI title. Please try again.");
+    } finally {
+      setAiTitle(false);
+    }
+  };
+
   const config = useMemo(
     () => ({
       readonly: false,
@@ -130,14 +149,21 @@ const AddBlog = () => {
                   placeholder="Enter blog title"
                   value={formData.title}
                   onChange={hadleInputChange}
+                  className={
+                    aiTitle ? "animate-pulse placeholder:opacity-60" : ""
+                  }
                 />
-                <Button
-                  type="button"
-                  size={"icon"}
-                  className="flex items-center justify-center"
-                >
-                  <RefreshCw />
-                </Button>
+                {formData.title && (
+                  <Button
+                    type="button"
+                    size={"icon"}
+                    className="flex items-center justify-center"
+                    onClick={aiTitleRespose}
+                    disabled={aiTitle}
+                  >
+                    <RefreshCw className={aiTitle ? "animate-spin" : ""}/>
+                  </Button>
+                )}
               </div>
             </FormGroup>
             <FormGroup>

@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 
 const LoginPage = () => {
   const router = useRouter();
-  const { isAuth, user, setIsAuth, loading, setLoading } = useAppData();
+  const { isAuth, user, setIsAuth, loading, setLoading, setUser } = useAppData();
 
   React.useEffect(() => {
     if (isAuth && user) {
@@ -22,6 +22,7 @@ const LoginPage = () => {
   }, [isAuth, user, router]);
 
   const resposeGoogle = async (authResult: any) => {
+    setLoading(true);
     try {
       const result = await axios.post(`${user_service}/api/v1/login`, {
         code: authResult["code"],
@@ -33,9 +34,13 @@ const LoginPage = () => {
         path: "/",
       });
       toast.success("Login successful!");
+      setUser(result.data);
+      setIsAuth(true);
+      setLoading(false);
     } catch (error) {
       console.error("Login failed:", error);
       toast.error("Login failed. Please try again.");
+      setLoading(false);
     }
   };
 

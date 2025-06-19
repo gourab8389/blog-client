@@ -43,6 +43,7 @@ interface AppContextType {
   isAuth: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
+  setUser: React.Dispatch<React.SetStateAction<UserRespose | null>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -52,7 +53,7 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserRespose | null>(null);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +80,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       fetchUser();
   }, [])
   return (
-    <AppContext.Provider value={{ user, setIsAuth, isAuth, setLoading, loading }}>
+    <AppContext.Provider value={{ user, setIsAuth, isAuth, setLoading, loading, setUser }}>
       <GoogleOAuthProvider
         clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
       >
@@ -96,4 +97,10 @@ export const useAppData = () => {
     throw new Error("useAppData must be used within an AppProvider");
   }
   return context;
+}
+
+export const Logout = () => {
+  Cookies.remove("token", { path: "/" });
+  window.location.href = "/";
+  return null;
 }

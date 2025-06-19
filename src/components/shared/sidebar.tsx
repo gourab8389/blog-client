@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
-import { useAppData } from "@/context/app-context";
+import { Logout, useAppData } from "@/context/app-context";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -44,7 +44,7 @@ const Sidebar = ({ className }: SidebarProps) => {
             <Button className="w-full flex">
               <Avatar className="w-7 h-7">
                 <AvatarImage src={user.user.image} />
-                <AvatarFallback>
+                <AvatarFallback className="bg-white text-blue-500">
                   {user.user.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -55,6 +55,14 @@ const Sidebar = ({ className }: SidebarProps) => {
           <Link href={"/login"}>
             <Button className="w-full">Login</Button>
           </Link>
+        )}
+        {(user || isAuth) && (
+          <Button
+            className="w-full mt-2"
+            onClick={Logout}
+          >
+            Logout
+          </Button>
         )}
       </div>
     </div>

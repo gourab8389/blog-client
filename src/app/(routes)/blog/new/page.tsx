@@ -42,6 +42,7 @@ const AddBlog = () => {
   const [loading, setLoading] = useState(false);
   const [aiTitle, setAiTitle] = useState(false);
   const [aiDescription, setAiDescription] = useState(false);
+  const [aiBlogLoading, setAiBlogLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -145,6 +146,25 @@ const AddBlog = () => {
     }
   };
 
+  const aiBlogResponse = async () => {
+    try {
+      setAiBlogLoading(true);
+      const { data } = await axios.post(`${author_service}/api/v1/ai/blog`, {
+        blog: formData.blogcontent,
+      });
+      setContent(data.html);
+      setFormData({
+        ...formData,
+        blogcontent: data.html,
+      });
+    } catch (error) {
+      console.error("Error generating AI description:", error);
+      toast.error("Failed to generate AI description. Please try again.");
+    } finally {
+      setAiBlogLoading(false);
+    }
+  };
+
   const config = useMemo(
     () => ({
       readonly: false,
@@ -164,18 +184,8 @@ const AddBlog = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormGroup>
-              <Label>Title</Label>
-              <div className="flex justify-center items-center gap-2">
-                <Input
-                  name="title"
-                  required
-                  placeholder="Enter blog title"
-                  value={formData.title}
-                  onChange={hadleInputChange}
-                  className={
-                    aiTitle ? "animate-pulse placeholder:opacity-60" : ""
-                  }
-                />
+              <div className="flex justify-between">
+                <Label>Title</Label>
                 {formData.title && (
                   <Button
                     type="button"
@@ -188,20 +198,22 @@ const AddBlog = () => {
                   </Button>
                 )}
               </div>
-            </FormGroup>
-            <FormGroup>
-              <Label>Description</Label>
-              <div className="flex gap-2">
-                <Textarea
-                  name="description"
+              <div className="flex justify-center items-center gap-2">
+                <Input
+                  name="title"
                   required
                   placeholder="Enter blog title"
-                  value={formData.description}
+                  value={formData.title}
                   onChange={hadleInputChange}
                   className={
-                    aiDescription ? "animate-pulse placeholder:opacity-60 resize-none" : "resize-none"
+                    aiTitle ? "animate-pulse placeholder:opacity-60" : ""
                   }
                 />
+              </div>
+            </FormGroup>
+            <FormGroup>
+              <div className="flex justify-between">
+                <Label>Description</Label>
                 {formData.description && (
                   <Button
                     type="button"
@@ -210,9 +222,25 @@ const AddBlog = () => {
                     onClick={aiDescriptionResponse}
                     disabled={aiDescription}
                   >
-                    <RefreshCw className={aiDescription ? "animate-spin" : ""} />
+                    <RefreshCw
+                      className={aiDescription ? "animate-spin" : ""}
+                    />
                   </Button>
                 )}
+              </div>
+              <div className="flex gap-2">
+                <Textarea
+                  name="description"
+                  required
+                  placeholder="Enter blog title"
+                  value={formData.description}
+                  onChange={hadleInputChange}
+                  className={
+                    aiDescription
+                      ? "animate-pulse placeholder:opacity-60 resize-none"
+                      : "resize-none"
+                  }
+                />
               </div>
             </FormGroup>
             <FormGroup>
@@ -296,9 +324,16 @@ const AddBlog = () => {
                     formatting. Please add image after improving your grammer
                     and spellings.
                   </p>
-                  <Button type="button" size={"sm"}>
-                    <RefreshCw className="h-4 w-4" />
-                    <span className="ml-1">Fix Content</span>
+                  <Button
+                    type="button"
+                    size={"sm"}
+                    className="flex items-center justify-center"
+                    onClick={aiBlogResponse}
+                    disabled={aiBlogLoading}
+                  >
+                    <RefreshCw
+                      className={aiBlogLoading ? "animate-spin" : ""}
+                    />
                   </Button>
                 </div>
                 <JoditEditor

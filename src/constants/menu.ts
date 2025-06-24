@@ -1,14 +1,10 @@
 export const navMenu = [
   {
-    title: "Home",
+    title: "Blogs",
     path: "/",
   },
   {
     title: "Add Blog",
     path: "/blog/new",
-  },
-  {
-    title: "Contact",
-    path: "/contact",
   },
 ];

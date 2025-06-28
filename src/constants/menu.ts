@@ -5,6 +5,6 @@ export const navMenu = [
   },
   {
     title: "Add Blog",
-    path: "/blog/new",
+    path: "/blogs/new",
   },
 ];

@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
+import DetailsPage from "./_components/details-page";
 
-const BlogIdPage = () => {
-  return (
-    <div>
-      id
-    </div>
-  )
+interface BlogIdPageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default BlogIdPage
+const BlogIdPage = ({ params: { id } }: BlogIdPageProps) => {
+  return <DetailsPage id={id} />
+};
+
+export default BlogIdPage;

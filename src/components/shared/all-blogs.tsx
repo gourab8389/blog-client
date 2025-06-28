@@ -33,9 +33,9 @@ const AllBlogs = () => {
   } = useAppData();
   console.log("blogs", blogs);
 
-  const [visibleCategories, setVisibleCategories] = useState(20);
+  const [visibleCategories, setVisibleCategories] = useState(10);
 
-  const CATEGORIES_PER_PAGE = 20;
+  const CATEGORIES_PER_PAGE = 10;
   const hasMoreCategories = visibleCategories < blogCategories.length;
   const canShowLess = visibleCategories > CATEGORIES_PER_PAGE;
 
@@ -77,7 +77,7 @@ const AllBlogs = () => {
             All
           </Button>
         </div>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {blogCategories.slice(0, visibleCategories).map((category, index) => {
             return (
               <Button
@@ -131,7 +131,7 @@ const AllBlogs = () => {
             Loading blogs...
           </div>
         ) : blogs && blogs.blogs.length > 0 ? (
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {blogs.blogs.map((blog: Blog) => (
               <BlogCards
                 key={blog.id}

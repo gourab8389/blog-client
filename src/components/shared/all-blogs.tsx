@@ -7,6 +7,7 @@ import { blogCategories } from "@/constants/category";
 import { BoxSelect, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Card } from "../ui/card";
 import Link from "next/link";
+import BlogCards from "./blog-cards";
 
 export interface Blog {
   id: number;
@@ -132,34 +133,15 @@ const AllBlogs = () => {
         ) : blogs && blogs.blogs.length > 0 ? (
           <div className="grid grid-cols-4 gap-3">
             {blogs.blogs.map((blog: Blog) => (
-              <Link href={`/blogs/${blog.id}`} key={blog.id}>
-                <Card
-                  className="p-2 flex flex-col gap-2"
-                >
-                  <div>
-                    <img
-                      src={blog.image}
-                      alt={blog.title}
-                      className="w-full h-40 object-cover rounded-md"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <h2 className="text-lg font-semibold">
-                      {blog.title}
-                    </h2>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {blog.description}
-                    </p>
-                    <p className="text-sm text-muted-foreground line-clamp-1">
-                      <span className="font-medium">Author:</span> {blog.author}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center">
-                      <Calendar size={16} className="mr-2"/>
-                      {new Date(blog.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </Card>
-              </Link>
+              <BlogCards
+                key={blog.id}
+                id={blog.id}
+                title={blog.title}
+                description={blog.description}
+                image={blog.image}
+                author={blog.author}
+                created_at={blog.created_at}
+              />
             ))}
           </div>
         ) : (

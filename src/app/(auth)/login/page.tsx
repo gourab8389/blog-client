@@ -17,7 +17,7 @@ const LoginPage = () => {
 
   React.useEffect(() => {
     if (isAuth && user) {
-      router.push("/");
+      router.push("/blogs");
     }
   }, [isAuth, user, router]);
 

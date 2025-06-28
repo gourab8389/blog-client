@@ -19,7 +19,7 @@ const Sidebar = ({ className }: SidebarProps) => {
   return (
     <div
       className={cn(
-        "bg-blue-50/50 flex flex-col justify-between py-5 px-3",
+        "bg-gray-100/50 flex flex-col justify-between py-5 px-3 border-r",
         className
       )}
     >

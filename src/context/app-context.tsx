@@ -37,6 +37,12 @@ export interface Blog {
   created_at: Date;
 }
 
+interface BlogResponse {
+  success: boolean;
+  message: string;
+  blogs: Blog[];
+}
+
 interface AppContextType {
   user: UserRespose | null;
   loading: boolean;
@@ -45,7 +51,7 @@ interface AppContextType {
   setIsAuth: React.Dispatch<React.SetStateAction<boolean>>;
   setUser: React.Dispatch<React.SetStateAction<UserRespose | null>>;
   logoutUser: () => Promise<void>;
-  blogs: Blog[] | null;
+  blogs: BlogResponse | null;
   blogLoading: boolean;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   searchQuery: string;
@@ -82,7 +88,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }
   const [blogLoading, setBlogLoading] = useState(true);
-  const [blogs, setBlogs] = useState<Blog[] | null>([]);
+  const [blogs, setBlogs] = useState<BlogResponse | null>(null);
 
   const [category, setCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");

@@ -4,7 +4,9 @@ import { useAppData } from "@/context/app-context";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { blogCategories } from "@/constants/category";
-import { BoxSelect, ChevronDown, ChevronUp } from "lucide-react";
+import { BoxSelect, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Card } from "../ui/card";
+import Link from "next/link";
 
 export interface Blog {
   id: number;
@@ -28,6 +30,8 @@ const AllBlogs = () => {
     category,
     setCategory,
   } = useAppData();
+  console.log("blogs", blogs);
+
   const [visibleCategories, setVisibleCategories] = useState(20);
 
   const CATEGORIES_PER_PAGE = 20;
@@ -120,27 +124,44 @@ const AllBlogs = () => {
         )}
       </div>
       {/* here the blogs */}
-      <div className="flex flex-col gap-5">
+      <div className="w-full flex items-center">
         {blogLoading ? (
           <div className="text-center text-muted-foreground">
             Loading blogs...
           </div>
-        ) : blogs && blogs.length > 0 ? (
-          blogs.map((blog: Blog) => (
-            <div
-              key={blog.id}
-              className="p-4 border rounded-md bg-white shadow-sm"
-            >
-              <h2 className="text-lg font-semibold">{blog.title}</h2>
-              <p className="text-sm text-muted-foreground">
-                {blog.description}
-              </p>
-              <p className="text-xs text-gray-500">
-                By {blog.author} on{" "}
-                {new Date(blog.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          ))
+        ) : blogs && blogs.blogs.length > 0 ? (
+          <div className="grid grid-cols-4 gap-3">
+            {blogs.blogs.map((blog: Blog) => (
+              <Link href={`/blogs/${blog.id}`} key={blog.id}>
+                <Card
+                  className="p-2 flex flex-col gap-2"
+                >
+                  <div>
+                    <img
+                      src={blog.image}
+                      alt={blog.title}
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h2 className="text-lg font-semibold">
+                      {blog.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {blog.description}
+                    </p>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      <span className="font-medium">Author:</span> {blog.author}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center">
+                      <Calendar size={16} className="mr-2"/>
+                      {new Date(blog.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
         ) : (
           <div className="text-center text-muted-foreground">
             No blogs found.

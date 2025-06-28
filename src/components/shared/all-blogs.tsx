@@ -125,7 +125,7 @@ const AllBlogs = () => {
         )}
       </div>
       {/* here the blogs */}
-      <div className="w-full flex items-center">
+      <div className="w-full flex items-center justify-center">
         {blogLoading ? (
           <div className="text-center text-muted-foreground">
             Loading blogs...

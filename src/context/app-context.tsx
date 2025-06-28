@@ -47,6 +47,10 @@ interface AppContextType {
   logoutUser: () => Promise<void>;
   blogs: Blog[] | null;
   blogLoading: boolean;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  searchQuery: string;
+  setCategory: React.Dispatch<React.SetStateAction<string>>;
+  category: string;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -80,10 +84,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [blogLoading, setBlogLoading] = useState(true);
   const [blogs, setBlogs] = useState<Blog[] | null>([]);
 
+  const [category, setCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   async function fetchBlogs() {
     setBlogLoading(true);
     try {
-      const { data } = await axios.get(`${blog_service}/api/v1/blog/all`);
+      const { data } = await axios.get(`${blog_service}/api/v1/blog/all?searchQuery=${searchQuery}&category=${category}`);
       setBlogs(data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
@@ -100,11 +107,29 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-    fetchBlogs();
   }, []);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [searchQuery, category]);
+
   return (
     <AppContext.Provider
-      value={{ user, setIsAuth, isAuth, setLoading, loading, setUser, logoutUser, blogs, blogLoading }}
+      value={{ 
+        user, 
+        setIsAuth, 
+        isAuth, 
+        setLoading, 
+        loading, 
+        setUser, 
+        logoutUser, 
+        blogs, 
+        blogLoading,
+        setSearchQuery,
+        searchQuery,
+        setCategory,
+        category 
+      }}
     >
       <GoogleOAuthProvider
         clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}

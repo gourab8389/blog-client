@@ -2,13 +2,14 @@ import React from "react";
 import DetailsPage from "./_components/details-page";
 
 interface BlogIdPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-const BlogIdPage = ({ params: { id } }: BlogIdPageProps) => {
-  return <DetailsPage id={id} />
+const BlogIdPage = async ({ params }: BlogIdPageProps) => {
+  const { id } = await params;
+  return <DetailsPage id={id} />;
 };
 
 export default BlogIdPage;

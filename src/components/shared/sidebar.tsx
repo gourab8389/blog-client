@@ -19,12 +19,13 @@ const Sidebar = ({ className }: SidebarProps) => {
   return (
     <div
       className={cn(
-        "bg-gray-100/50 flex flex-col justify-between py-5 px-3 border-r",
+        "bg-gray-100 flex flex-col justify-between py-5 px-3 border-r",
         className
       )}
     >
       <div className="flex flex-col items-center justify-center gap-10">
         <h1 className="text-2xl font-bold text-center">Blog Web</h1>
+        <Separator className="mb-3 bg-blue-400" />
         <div className="flex flex-col w-full gap-3">
           {navMenu.map((item) => (
             <Link

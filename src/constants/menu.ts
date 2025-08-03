@@ -7,4 +7,8 @@ export const navMenu = [
     title: "Add Blog",
     path: "/blogs/new",
   },
+  {
+    title: "Saved Blogs",
+    path: "/blogs/saved",
+  }
 ];

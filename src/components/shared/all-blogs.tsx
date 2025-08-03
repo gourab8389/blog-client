@@ -29,7 +29,6 @@ const AllBlogs = () => {
     category,
     setCategory,
   } = useAppData();
-  console.log("blogs", blogs);
 
   const [visibleCategories, setVisibleCategories] = useState(10);
 

@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Blog, blog_service, useAppData, User } from "@/context/app-context";
+import {
+  author_service,
+  Blog,
+  blog_service,
+  useAppData,
+  User,
+} from "@/context/app-context";
 import axios from "axios";
 import {
   Bookmark,
@@ -47,13 +53,14 @@ interface Comment {
 
 const DetailsPage = ({ id }: DetailsPageProps) => {
   const router = useRouter();
-  const { isAuth, user } = useAppData();
+  const { isAuth, user, fetchBlogs } = useAppData();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [deleteBlogLoading, setDeleteBlogLoading] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null
   );
@@ -70,7 +77,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
         setAuthor(response.resposeData.resposeData.author);
       }
     } catch (error) {
-      console.error("Error fetching blog details:", error);
+      // console.error("Error fetching blog details:", error);
     } finally {
       setLoading(false);
     }
@@ -155,6 +162,32 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
     }
   }
 
+  async function deleteBlog() {
+    try {
+      setDeleteBlogLoading(true);
+      const token = Cookies.get("token");
+      const { data } = await axios.delete(
+        `${author_service}/api/v1/blog/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(data.message);
+      setTimeout(() => {
+        fetchBlogs();
+      }, 2000);
+      setBlog(null);
+      setDeleteBlogLoading(false);
+      router.push("/blogs");
+    } catch (error) {
+      toast.error("Failed to delete blog. Please try again.");
+    } finally {
+      setDeleteBlogLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="w-full h-[80vh] flex items-center justify-center">
@@ -218,8 +251,18 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button variant={"destructive"} className="ml-2" size={"sm"}>
-                <Trash2Icon className="h-4 w-4" />
+              <Button 
+              variant={"destructive"} 
+              className="ml-2" 
+              size={"sm"}
+              onClick={deleteBlog}
+              disabled={deleteBlogLoading}
+              >
+                {deleteBlogLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
               </Button>
             </>
           )}

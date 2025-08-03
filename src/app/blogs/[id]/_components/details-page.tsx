@@ -61,6 +61,8 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [deleteBlogLoading, setDeleteBlogLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null
   );
@@ -187,6 +189,29 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
       setDeleteBlogLoading(false);
     }
   }
+  
+  async function saveBlog(){
+    const token = Cookies.get("token");
+    try {
+      setSaveLoading(true);
+      const { data } = await axios.post(
+        `${blog_service}/api/v1/save/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(data.message);
+      setSaved(true);
+    } catch (error) {
+      toast.error("Failed to save blog. Please try again.");
+    } finally {
+      setSaveLoading(false);
+    }
+  }
+
 
   if (loading) {
     return (
@@ -237,7 +262,13 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
             {new Date(blog.created_at).toLocaleDateString()}
           </p>
           {isAuth && (
-            <Button variant={"ghost"} className="ml-2" size={"icon"}>
+            <Button 
+            variant={"ghost"} 
+            className="ml-2" 
+            size={"icon"}
+            onClick={saveBlog}
+            disabled={saveLoading}
+            >
               <Bookmark className="h-4 w-4 text-muted-foreground" />
             </Button>
           )}

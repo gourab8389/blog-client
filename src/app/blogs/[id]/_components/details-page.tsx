@@ -54,6 +54,9 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   const [comment, setComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
+    null
+  );
 
   async function fetchBlogDetails() {
     try {
@@ -133,7 +136,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
 
   async function deleteComment(id: string) {
     try {
-      setCommentLoading(true);
+      setDeletingCommentId(id);
       const token = Cookies.get("token");
       const { data } = await axios.delete(
         `${blog_service}/api/v1/comment/${id}`,
@@ -148,7 +151,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
     } catch (error) {
       toast.error("Failed to delete comment. Please try again.");
     } finally {
-      setCommentLoading(false);
+      setDeletingCommentId(null);
     }
   }
 
@@ -282,9 +285,13 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
                           variant="destructive"
                           size="icon"
                           onClick={() => deleteComment(comment.id)}
-                          disabled={commentLoading}
+                          disabled={deletingCommentId === comment.id}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {deletingCommentId === comment.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       )}
                     </div>

@@ -27,7 +27,7 @@ import FormGroup from "@/components/shared/group";
 import dynamic from "next/dynamic";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { author_service, blog_service } from "@/context/app-context";
+import { author_service, blog_service, useAppData } from "@/context/app-context";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 
@@ -43,6 +43,8 @@ const EditPage = () => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [existingImage, setExistingImage] = useState(null);
+
+  const { fetchBlogs } = useAppData();
 
   const { id } = useParams();
 
@@ -81,7 +83,6 @@ const EditPage = () => {
     const fetchBlog = async () => {
       setLoading(true);
       try {
-        const token = Cookies.get("token");
         const { data } = await axios.get(`${blog_service}/api/v1/blog/${id}`);
         const blog = data.resposeData.resposeData.blog;
         setFormData({
@@ -94,6 +95,9 @@ const EditPage = () => {
         setContent(blog.blogcontent);
         setValue(blog.category);
         setExistingImage(blog.image);
+        setTimeout(() => {
+          fetchBlogs();
+        }, 4000)
       } catch (error) {
         console.error("Error fetching blog:", error);
         toast.error("Failed to fetch blog details.");
@@ -130,14 +134,7 @@ const EditPage = () => {
         }
       );
       toast.success("Blog updated successfully!");
-      setFormData({
-        title: "",
-        description: "",
-        category: "",
-        image: null,
-        blogcontent: "",
-      });
-      setContent("");
+      router.push(`/blogs/${id}`);
     } catch (error) {
       console.error("Error creating blog:", error);
       toast.error("Failed to update blog. Please try again.");

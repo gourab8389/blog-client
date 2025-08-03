@@ -27,14 +27,17 @@ import FormGroup from "@/components/shared/group";
 import dynamic from "next/dynamic";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { author_service } from "@/context/app-context";
+import { author_service, useAppData } from "@/context/app-context";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const JoditEditor = dynamic(() => import("jodit-react"), {
   ssr: false,
 });
 
 const AddBlog = () => {
+  const { fetchBlogs } = useAppData();
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const editor = useRef(null);
@@ -90,14 +93,7 @@ const AddBlog = () => {
         }
       );
       toast.success("Blog created successfully!");
-      setFormData({
-        title: "",
-        description: "",
-        category: "",
-        image: null,
-        blogcontent: "",
-      });
-      setContent("");
+      router.push(`/blogs`);
     } catch (error) {
       console.error("Error creating blog:", error);
       toast.error("Failed to create blog. Please try again.");

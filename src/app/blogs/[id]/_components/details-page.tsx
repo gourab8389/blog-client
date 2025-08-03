@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Blog, blog_service, useAppData, User } from "@/context/app-context";
@@ -13,7 +12,7 @@ import {
   ChevronRight,
   Edit,
   Loader2,
-  Trash,
+  Trash2,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -97,8 +96,9 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
           },
         }
       );
-      toast.success("Comment added successfully!");
+      toast.success(data.message);
       setComment("");
+      fetchComments();
     } catch (error) {
       toast.error("Failed to add comment. Please try again.");
     } finally {
@@ -130,6 +130,27 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   useEffect(() => {
     fetchComments();
   }, [id]);
+
+  async function deleteComment(id: string) {
+    try {
+      setCommentLoading(true);
+      const token = Cookies.get("token");
+      const { data } = await axios.delete(
+        `${blog_service}/api/v1/comment/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(data.message);
+      fetchComments();
+    } catch (error) {
+      toast.error("Failed to delete comment. Please try again.");
+    } finally {
+      setCommentLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -252,9 +273,21 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
                     <span className="font-semibold text-muted-foreground">
                       {comment.username}
                     </span>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(comment.created_at).toLocaleDateString()}
+                      </p>
+                      {comment.userid === user?.user?._id && (
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => deleteComment(comment.id)}
+                          disabled={commentLoading}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm leading-relaxed">{comment.comment}</p>
                 </div>

@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DetailsPageProps {
   id: string;
@@ -61,7 +62,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [deleteBlogLoading, setDeleteBlogLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null
@@ -189,8 +190,8 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
       setDeleteBlogLoading(false);
     }
   }
-  
-  async function saveBlog(){
+
+  async function saveBlog() {
     const token = Cookies.get("token");
     try {
       setSaveLoading(true);
@@ -204,14 +205,13 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
         }
       );
       toast.success(data.message);
-      setSaved(true);
+      setIsSaved(!isSaved);
     } catch (error) {
       toast.error("Failed to save blog. Please try again.");
     } finally {
       setSaveLoading(false);
     }
   }
-
 
   if (loading) {
     return (
@@ -262,14 +262,22 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
             {new Date(blog.created_at).toLocaleDateString()}
           </p>
           {isAuth && (
-            <Button 
-            variant={"ghost"} 
-            className="ml-2" 
-            size={"icon"}
-            onClick={saveBlog}
-            disabled={saveLoading}
+            <Button
+              variant={"ghost"}
+              className="ml-2"
+              size={"icon"}
+              onClick={saveBlog}
+              disabled={saveLoading}
             >
-              <Bookmark className="h-4 w-4 text-muted-foreground" />
+              <Bookmark
+                className={cn(
+                  "h-4 w-4",
+                  isSaved
+                    ? "text-blue-500 fill-blue-500"
+                    : "text-muted-foreground",
+                  saveLoading && "animate-ping"  
+                )}
+              />
             </Button>
           )}
           {blog.author === user?.user?._id && (
@@ -282,12 +290,12 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button 
-              variant={"destructive"} 
-              className="ml-2" 
-              size={"sm"}
-              onClick={deleteBlog}
-              disabled={deleteBlogLoading}
+              <Button
+                variant={"destructive"}
+                className="ml-2"
+                size={"sm"}
+                onClick={deleteBlog}
+                disabled={deleteBlogLoading}
               >
                 {deleteBlogLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

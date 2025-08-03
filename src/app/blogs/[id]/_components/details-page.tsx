@@ -37,6 +37,15 @@ interface BlogIdResponse {
   };
 }
 
+interface Comment {
+  id: string;
+  comment: string;
+  userid: string;
+  username: string;
+  blogid: string;
+  created_at: Date;
+}
+
 const DetailsPage = ({ id }: DetailsPageProps) => {
   const router = useRouter();
   const { isAuth, user } = useAppData();
@@ -45,6 +54,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   async function fetchBlogDetails() {
     try {
@@ -72,17 +82,21 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
 
   const handleEdit = () => {
     router.push(`/blogs/edit/${id}`);
-  }
+  };
 
-  async function addComment(){
+  async function addComment() {
     try {
       setCommentLoading(true);
       const token = Cookies.get("token");
-      const { data } = await axios.post(`${blog_service}/api/v1/comment/${id}`, {comment}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await axios.post(
+        `${blog_service}/api/v1/comment/${id}`,
+        { comment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.success("Comment added successfully!");
       setComment("");
     } catch (error) {
@@ -91,6 +105,31 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
       setCommentLoading(false);
     }
   }
+
+  async function fetchComments() {
+    try {
+      setCommentLoading(true);
+      const { data } = await axios.get(`${blog_service}/api/v1/comment/${id}`);
+      const response: {
+        status: boolean;
+        message: string;
+        comments: Comment[];
+      } = data;
+      if (response.status) {
+        setComments(response.comments);
+      } else {
+        console.error("Failed to fetch comments.");
+      }
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+    } finally {
+      setCommentLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchComments();
+  }, [id]);
 
   if (loading) {
     return (
@@ -147,10 +186,11 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
           )}
           {blog.author === user?.user?._id && (
             <>
-              <Button 
-              variant={"outline"} className="ml-auto" 
-              size={"sm"}
-              onClick={handleEdit}
+              <Button
+                variant={"outline"}
+                className="ml-auto"
+                size={"sm"}
+                onClick={handleEdit}
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -174,23 +214,18 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
       {isAuth && (
         <Card>
           <CardHeader className="text-xl font-semibold">
-          Leave a Comment
+            Leave a Comment
           </CardHeader>
           <CardContent>
-            <Label htmlFor="comment">
-              Your Comment
-            </Label>
+            <Label htmlFor="comment">Your Comment</Label>
             <Textarea
               id="comment"
               placeholder="Write your comment here..."
               className="my-2 resize-none"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              />
-            <Button
-              onClick={addComment}
-              disabled={commentLoading}
-            >
+            />
+            <Button onClick={addComment} disabled={commentLoading}>
               Post Comment
               {commentLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -201,6 +236,37 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
           </CardContent>
         </Card>
       )}
+      <Card>
+        <CardHeader className="text-xl font-semibold">
+          Comments ({comments.length})
+        </CardHeader>
+        <CardContent>
+          {comments.length > 0 ? (
+            <div className="space-y-1">
+              {comments.map((comment) => (
+                <div
+                  key={comment.id}
+                  className="border p-2 bg-muted/30 rounded-lg"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-muted-foreground">
+                      {comment.username}
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(comment.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <p className="text-sm leading-relaxed">{comment.comment}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No comments yet. Be the first to comment!</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

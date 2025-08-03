@@ -54,7 +54,7 @@ interface Comment {
 
 const DetailsPage = ({ id }: DetailsPageProps) => {
   const router = useRouter();
-  const { isAuth, user, fetchBlogs } = useAppData();
+  const { isAuth, user, fetchBlogs, savedBlogs, getSavedBlogs } = useAppData();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
@@ -191,6 +191,14 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
     }
   }
 
+useEffect(() => {
+  if(savedBlogs && savedBlogs.some((b) => b.id.toString() === id)) {
+    setIsSaved(true);
+  }else {
+    setIsSaved(false);
+  }
+},[savedBlogs, id]);
+
   async function saveBlog() {
     const token = Cookies.get("token");
     try {
@@ -206,6 +214,7 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
       );
       toast.success(data.message);
       setIsSaved(!isSaved);
+      getSavedBlogs();
     } catch (error) {
       toast.error("Failed to save blog. Please try again.");
     } finally {

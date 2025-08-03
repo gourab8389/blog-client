@@ -43,6 +43,19 @@ interface BlogResponse {
   blogs: Blog[];
 }
 
+interface SavedBlogType {
+  id: string;
+  userid: string;
+  blogid: string;
+  created_at: Date;
+}
+
+export interface SavedBlogsResponse {
+  status: boolean;
+  message: string;
+  blogs: Blog[];
+}
+
 interface AppContextType {
   user: UserRespose | null;
   loading: boolean;
@@ -58,6 +71,8 @@ interface AppContextType {
   setCategory: React.Dispatch<React.SetStateAction<string>>;
   category: string;
   fetchBlogs: () => Promise<void>;
+  getSavedBlogs: () => Promise<void>;
+  savedBlogs: Blog[] | null;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -97,12 +112,33 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   async function fetchBlogs() {
     setBlogLoading(true);
     try {
-      const { data } = await axios.get(`${blog_service}/api/v1/blog/all?searchQuery=${searchQuery}&category=${category}`);
+      const { data } = await axios.get(
+        `${blog_service}/api/v1/blog/all?searchQuery=${searchQuery}&category=${category}`
+      );
       setBlogs(data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
-    }finally{
+    } finally {
       setBlogLoading(false);
+    }
+  }
+
+  const [savedBlogs, setSavedBlogs] = useState<Blog[] | null>(null);
+
+  async function getSavedBlogs() {
+    try {
+      const token = Cookies.get("token");
+      const { data } = await axios.get(
+        `${blog_service}/api/v1/blog/saved/all`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setSavedBlogs(data.blogs);
+    } catch (error) {
+      console.error("Error fetching saved blogs:", error);
     }
   }
 
@@ -114,6 +150,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
+    getSavedBlogs();
   }, []);
 
   useEffect(() => {
@@ -122,21 +159,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   return (
     <AppContext.Provider
-      value={{ 
-        user, 
-        setIsAuth, 
-        isAuth, 
-        setLoading, 
-        loading, 
-        setUser, 
-        logoutUser, 
-        blogs, 
+      value={{
+        user,
+        setIsAuth,
+        isAuth,
+        setLoading,
+        loading,
+        setUser,
+        logoutUser,
+        blogs,
         blogLoading,
         setSearchQuery,
         searchQuery,
         setCategory,
         category,
-        fetchBlogs 
+        fetchBlogs,
+        getSavedBlogs,
+        savedBlogs,
       }}
     >
       <GoogleOAuthProvider

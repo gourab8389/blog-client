@@ -10,6 +10,7 @@ import axios from "axios";
 import {
   Bookmark,
   ChevronLeft,
+  ChevronRight,
   Edit,
   Loader2,
   Trash,
@@ -18,6 +19,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 interface DetailsPageProps {
   id: string;
@@ -40,6 +43,8 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [comment, setComment] = useState("");
+  const [commentLoading, setCommentLoading] = useState(false);
 
   async function fetchBlogDetails() {
     try {
@@ -67,6 +72,24 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
 
   const handleEdit = () => {
     router.push(`/blogs/edit/${id}`);
+  }
+
+  async function addComment(){
+    try {
+      setCommentLoading(true);
+      const token = Cookies.get("token");
+      const { data } = await axios.post(`${blog_service}/api/v1/comment/${id}`, {comment}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("Comment added successfully!");
+      setComment("");
+    } catch (error) {
+      toast.error("Failed to add comment. Please try again.");
+    } finally {
+      setCommentLoading(false);
+    }
   }
 
   if (loading) {
@@ -161,9 +184,19 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
               id="comment"
               placeholder="Write your comment here..."
               className="my-2 resize-none"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
               />
-            <Button>
+            <Button
+              onClick={addComment}
+              disabled={commentLoading}
+            >
               Post Comment
+              {commentLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
             </Button>
           </CardContent>
         </Card>

@@ -27,7 +27,11 @@ import FormGroup from "@/components/shared/group";
 import dynamic from "next/dynamic";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { author_service, blog_service, useAppData } from "@/context/app-context";
+import {
+  author_service,
+  blog_service,
+  useAppData,
+} from "@/context/app-context";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 
@@ -95,9 +99,7 @@ const EditPage = () => {
         setContent(blog.blogcontent);
         setValue(blog.category);
         setExistingImage(blog.image);
-        setTimeout(() => {
-          fetchBlogs();
-        }, 4000)
+        fetchBlogs();
       } catch (error) {
         console.error("Error fetching blog:", error);
         toast.error("Failed to fetch blog details.");
@@ -267,7 +269,6 @@ const EditPage = () => {
                   type="file"
                   accept="image/*"
                   name="image"
-                  required
                   className="border border-gray-300 rounded pb-2 w-full"
                   onChange={handleFileChange}
                   placeholder="Upload an image for your blog"

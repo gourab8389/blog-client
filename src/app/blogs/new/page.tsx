@@ -93,6 +93,9 @@ const AddBlog = () => {
         }
       );
       toast.success("Blog created successfully!");
+      setTimeout(() => {
+        fetchBlogs();
+      }, 4000);
       router.push(`/blogs`);
     } catch (error) {
       console.error("Error creating blog:", error);

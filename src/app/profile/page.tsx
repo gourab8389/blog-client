@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Edit, Loader2, Plus } from "lucide-react";
+import { ChevronLeft, Edit, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -143,8 +143,16 @@ const ProfilePage = () => {
       {loading ? (
         <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
       ) : (
-        <Card className="shadow-md rounded-lg p-6 max-w-md w-full items-center">
-          <h1 className="text-2xl font-bold mb-2 text-center">Profile</h1>
+        <Card className="shadow-md rounded-lg p-6 max-w-md w-full">
+          <div className="flex">
+            <Button
+            size={"sm"}
+            onClick={() => router.push("/blogs")}
+            >
+              <ChevronLeft />
+              Back to Blogs
+            </Button>
+          </div>
           <div className="flex flex-col gap-4 items-center">
             <Avatar
               className="w-28 h-28 cursor-pointer"
@@ -153,7 +161,7 @@ const ProfilePage = () => {
               <AvatarImage
                 src={user.user.image}
                 alt="profile"
-                className="object-cover"
+                className="object-cover border rounded-full bg-blue-200"
               />
               <input
                 type="file"

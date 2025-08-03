@@ -65,6 +65,10 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
     }
   }, [id]);
 
+  const handleEdit = () => {
+    router.push(`/blogs/edit/${id}`);
+  }
+
   if (loading) {
     return (
       <div className="w-full h-[80vh] flex items-center justify-center">
@@ -120,7 +124,11 @@ const DetailsPage = ({ id }: DetailsPageProps) => {
           )}
           {blog.author === user?.user?._id && (
             <>
-              <Button variant={"outline"} className="ml-auto" size={"sm"}>
+              <Button 
+              variant={"outline"} className="ml-auto" 
+              size={"sm"}
+              onClick={handleEdit}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
               <Button variant={"destructive"} className="ml-2" size={"sm"}>

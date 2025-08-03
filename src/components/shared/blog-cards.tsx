@@ -31,7 +31,7 @@ const BlogCards = ({
         </div>
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground line-clamp-3">
+          <p className="text-sm text-muted-foreground line-clamp-1">
             {description}
           </p>
           <p className="text-sm text-muted-foreground line-clamp-1">

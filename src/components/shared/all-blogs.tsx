@@ -5,8 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { blogCategories } from "@/constants/category";
 import { BoxSelect, Calendar, ChevronDown, ChevronUp } from "lucide-react";
-import { Card } from "../ui/card";
-import Link from "next/link";
 import BlogCards from "./blog-cards";
 
 export interface Blog {

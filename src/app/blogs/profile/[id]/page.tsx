@@ -1,4 +1,5 @@
 import React from "react";
+import AuthorPage from "./_components/author-page";
 
 interface BlogAuthorPageProps {
   params: Promise<{
@@ -8,7 +9,7 @@ interface BlogAuthorPageProps {
 
 const BlogAuthorPage = async ({ params }: BlogAuthorPageProps) => {
   const { id } = await params;
-  return <div>Blog Author Page for Author ID: {id}</div>;
+  return <AuthorPage id={id} />;
 };
 
 export default BlogAuthorPage;

@@ -255,7 +255,7 @@ useEffect(() => {
       <div className="w-full flex flex-col gap-3">
         <div className="flex gap-1 items-center">
           <Link
-            href={`/profile/${author?._id}`}
+            href={`/blogs/profile/${author?._id}`}
             className="flex items-center gap-2"
           >
             <img

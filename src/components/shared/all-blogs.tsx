@@ -20,13 +20,11 @@ export interface Blog {
 
 const AllBlogs = () => {
   const {
-    user,
     loading,
     blogLoading,
     blogs,
     searchQuery,
     setSearchQuery,
-    category,
     setCategory,
   } = useAppData();
 

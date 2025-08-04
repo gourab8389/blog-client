@@ -2,13 +2,33 @@
 
 import BlogCards from "@/components/shared/blog-cards";
 import { Blog, useAppData } from "@/context/app-context";
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ChevronRight, Loader2 } from "lucide-react";
 
 const SavedBlogs = () => {
-  const { blogs, savedBlogs } = useAppData();
+  const { blogs, savedBlogs, isAuth, user } = useAppData();
+
+  if (!user || !isAuth) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-2xl font-semibold text-muted-foreground mb-4">
+          Please log in to view your saved blogs.
+        </h1>
+        <Link href="/login">
+          <Button className="bg-blue-500 text-white hover:bg-blue-600">
+            Log In
+            <ChevronRight className="inline-block" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (!blogs || !savedBlogs) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center h-full">
+      <Loader2 className="animate-spin h-8 w-8 text-blue-500" />
+    </div>;
   }
 
   return (
